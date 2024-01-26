@@ -1,8 +1,7 @@
 #include <iostream>
 #include <string>
 int Bubble(int i, int j, int temp, int arr[], int arrS) {
-
-	for(i = 0; i < arrS; i++) {
+  for(i = 0; i < arrS; i++) {
 		for(j = i+1; j<arrS; j++){
 			if(arr[i] > arr[j]) {
 				temp = arr[i];
@@ -16,26 +15,23 @@ int Bubble(int i, int j, int temp, int arr[], int arrS) {
 }
 
 int main() {
-
+//vars
 	int sortType;
-	//vars
-		int i,j,temp = 0;
+	int i,j,temp = 0;
 	int arr[] = {1,5,0,2,56,1,2,3};
 	int arrS = 0;
-		for(auto i:arr) arrS++;
+	for(auto i:arr) arrS++;
 
-  std::cout << "Enter the sort type: \n\t 1 | Bubble Sort \n\t 2 | Selection Sort \n\t 3 | Insertion sort \n\t 4 | Merge sort \n\t 5 | Quick sort \n\t 6 | Radix sort.\n Enter 0 to end the program \n";
+        std::cout << "Enter the sort type: \n\t 1 | Bubble Sort \n\t 2 | Selection Sort \n\t 3 | Insertion sort \n\t 4 | Merge sort \n\t 5 | Quick sort \n\t 6 | Radix sort.\n Enter 0 to end the program \n";
   	std::cin >> sortType;
 if(sortType >= 0 && sortType <= 6) {
 	switch(sortType) { 
-
-		case 0:
-		exit;
-		break;
-
- 	   case 1:
-	     Bubble( i, j, temp, arr, arrS);
-		break;
+	 case 0:
+	exit;
+	break;
+ 	 case 1:
+	Bubble( i, j, temp, arr, arrS);
+	break;
 
 	}
 } else {std::cout << "Please enter a valid number";}
