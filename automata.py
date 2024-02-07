@@ -1,4 +1,3 @@
-#import shutil
 import datetime
 import shutil
 import tkinter as tk
