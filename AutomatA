@@ -1,6 +1,6 @@
 import datetime
 import shutil
-import time
+import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
@@ -9,9 +9,12 @@ dateT = datetime.datetime.now()
 dateTOD = datetime.date.today()
 offset = datetime.timedelta(hours=3)
 datetime.timezone(offset, name='МСК')
+#TO DO Запоминание путей, релятивные пути для копирования по сети, добавить исключения
 root = Tk()
-root.title("Univer") 
-root.geometry("400x400")
+root.title("Automata") 
+root.geometry("400x790")
+
+root.config(bg='blue')
 root.resizable(False, False)
 root.attributes("-toolwindow", True)
 currYear = dateT.year
@@ -23,68 +26,174 @@ if currMonth < 10:
     currMonth = "0" + str(currMonth)
 currDayWeek = dateT.strftime("%w")
 
-testS = r"\\192.168.0.254\_autobackup_store\111.txt"
-testD = r"\\192.168.0.247\_autobackup_store\111"
+#Функции
+def DiskWorks():
+    if currDayWeek == "4" or currDayWeek == "5":
+        global localDisk; localDisk = fd.askdirectory()
+        if localDisk != "": 
+            print("---disk passed: " + str(localDisk))
+            os.chdir(localDisk)
+            if (os.path.exists("saveToDisk.txt")):
+                print("saveToDisk file already exists, skipping")
+                with open("saveToDisk.txt", encoding="utf8") as f:
+                    for line in f:  #Прочитать то количество строк которое находится в файле (line читается из f)
+                        print(line.strip())
+            else:
+                global saveToDiskfile; saveToDiskfile = open("saveToDisk.txt", "a")
+                print("saveToDisk file created")
+                with open("saveToDisk.txt", encoding="utf8") as f:
+                    for line in f: 
+                        print(line.strip())
+                            #Что копировать
+            if (os.path.exists("whatToCopy.txt")):
+                print("whatToCopy file already exists, skipping")
+                with open("whatToCopy.txt", encoding="utf8") as f:
+                    for line in f:  #Прочитать то количество строк которое находится в файле (line читается из f)
+                        print(line.strip())
+            else:
+                global whatToCopyfile; whatToCopyfile = open("whatToCopy.txt", "w")
+                print("whatToCopy file created")
+                with open("whatToCopy.txt", encoding="utf8") as f:
+                    for line in f: 
+                        print(line.strip())
+                            #Исключения
+            if (os.path.exists("exceptionsBACKUP.txt")):
+                print("exceptionsBACKUP file already exists, skipping")
+                with open("exceptionsBACKUP.txt", encoding="utf8") as f:
+                    for line in f:  #Прочитать то количество строк которое находится в файле (line читается из f)
+                        print(line.strip())
+            else:
+                global exceptionsBACKUPfile; exceptionsBACKUPfile = open("exceptionsBACKUP.txt", "w")
+                print("exceptionsBACKUP file created")
+                with open("exceptionsBACKUP.txt", encoding="utf8") as f:
+                    for line in f: 
+                        print(line.strip())            
+            with open('saveToDisk.txt', 'w') as f:
+                f.write("lll")
+            if len(str(localDisk)) <= 3:
+                print(1) #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA сохранение пути не раюотеет
+                locDiskAutom["text"] = localDisk + str(currDay) + "." + str(currMonth) + "." + str(currYear) + "-BACKUP"
+                locDiskAutom["foreground"] = "black"
+                with open('saveToDisk.txt', 'a') as f:
+                    f.write("aaaaaaaaa")                
+            else:
+                print(2)
+                locDiskAutom["text"] = localDisk + "/" + str(currDay) + "." + str(currMonth) + "." + str(currYear) + "-BACKUP"
+                locDiskAutom["foreground"] = "black"
+                with open('saveToDisk.txt', 'a') as f:
+                    f.write("aaaaaaaaa")    
+            if os.path.isdir(str(currDay) + "." + str(currMonth) + "." + str(currYear) + "-BACKUP"):
+                print("Already exists")
+            else:
+                os.mkdir(str(currDay) + "." + str(currMonth) + "." + str(currYear) + "-BACKUP")
+            with open("saveToDisk.txt", "a") as f:
+                f.write(localDisk + str(currDay) + "." + str(currMonth) + "." + str(currYear) + "-BACKUP")
+        else:
+            print("NONE")
+                #На какой диск
 
-BSRS = "\\\\192.168.0.254\_autobackup_store\DBBSR\BSR-50RS0016-" + str(currDay) + "." + str(currMonth) + "." + str(currYear) + ".7z"; BSRD = "\\\\192.168.0.247\_autobackup_store\DBBSR"
-DBSDPS = "\\\\192.168.0.254\_autobackup_store\DBSDP\SDP-50RS0016-" + str(currDay) + "." + str(currMonth) + "." + str(currYear) + ".7z"; DBSDPD = "\\\\192.168.0.247\_autobackup_store\DBSDP"
-DBSKS = "\\\\192.168.0.254\_autobackup_store\DBSK\POSTMAN_" + str(currDay) + "." + str(currMonth) + "." + str(currYear) + "_korolev.rar"; DBSKD = "\\\\192.168.0.247\_autobackup_store\DBSK"
-DBCadryS = "\\\\192.168.0.254\_autobackup_store\DBCadry\db_cadry_" + str(currDay) + "." + str(currMonth) + "." + str(currYear) + "_korolev.rar"; DBCadryD = "\\\\192.168.0.247\_autobackup_store\DBCadry"
-DBConvictionS = "\\\\192.168.0.254\_autobackup_store\DBConviction\CONVICTION_" + str(currDay) + "." + str(currMonth) + "." + str(currYear) + "_korolev.rar"; DBConvictionD = "\\\\192.168.0.247\_autobackup_store\DBConviction"
-#justiceS = "\\\\192.168.0.254\data\JUSTICE"; justiceD = r"\\192.168.0.247\data\Justice"
-print(BSRS, DBSDPS, DBSKS,DBCadryS)
-def CopyBases():
-    if currDayWeek == "3" or currDayWeek == "5":
-        print("Начало копирования базы:", dateT)
-        CopyBasesButton["state"] = tk.DISABLED
-                    #Переделать это всё в лист по которому пройдётся Луп
-        shutil.copy(DBCadryS, DBCadryD)
-        listbox1.insert(END, DBCadryD)
-        shutil.copy2(testS, testD)
-        listbox1.insert(END, testD)
-        shutil.copy2(BSRS, BSRD)
-        listbox1.insert(END, BSRD)
-        shutil.copy(DBSDPS, DBSDPD)
-        listbox1.insert(END, DBSDPD)
-        shutil.copy2(DBSKS, DBSKD)
-        listbox1.insert(END, DBSKD)
+# Первый слой нотбука ОБЩИЙ
+firstLayer = ttk.Notebook()
+firstLayer.pack(expand="true",fill="both")
 
-        print("Завершение копирования")
-        CopyBasesButton["state"] = tk.NORMAL
-    else:
-        CopyBasesButton["state"] = tk.DISABLED
-        CopyBasesButton["text"] = "Копирование доступно только в Среду и Пятницу."
-disk = ""
-def copyToDisk():
-    disk = fd.askdirectory()
-    print(disk)
-    informDisk['text'] = disk
-    informDisk['foreground'] = "black"
-#Добавление верхних вкладок
-notebook = ttk.Notebook()
-notebook.pack(expand=True, fill="both")
-frame1 = ttk.Frame(notebook); frame2 = ttk.Frame(notebook); frame3 = ttk.Frame(notebook)
-frame1.pack(fill="both", expand=True); frame2.pack(fill="both", expand=True); frame3.pack(fill="both", expand=True)
-notebook.add(frame1, text="Копирование"); notebook.add(frame2, text="Удаление"); notebook.add(frame3, text="Проверка Места")
+fold1 = ttk.Frame(firstLayer)
+fold1.pack(fill="both")
+firstLayer.add(fold1, text="Бэкап")
 
-#Копирование command = copyToDisk
-CopyBasesButton = ttk.Button(frame1, text = "Копировать базы", command = CopyBases)
-CopyBasesButton.pack(fill="x")
-listbox1 = Listbox(frame1)
-listbox1.pack(fill="x")
+fold2 = ttk.Frame(firstLayer)
+fold2.pack(fill="both")
+firstLayer.add(fold2, text="Анализ места")
 
-#На какой диск будет произведено вторичное копирование
-copyToDiskOpt = ttk.Button(frame1, text = "Выберите диск для копирования на него", command = copyToDisk)
-copyToDiskOpt.pack(fill="x")
-informDisk = ttk.Label(frame1, text="Выберите диск куда нужно скопировать файлы", foreground="gray")
-informDisk.pack(fill="x")
+fold3 = ttk.Frame(firstLayer)
+fold3.pack(fill="both")
+firstLayer.add(fold3, text="Удаление данных")
 
-DeleteBeforeButton = ttk.Button(frame2, text = "Удалить данные до числа:")
-DeleteBeforeButton.pack(fill="x")
-informDate = ttk.Label(frame2, text="Число вводить в формате ГОД-МЕСЯЦ-ДЕНЬ (2024-07-02)", foreground="gray")
-informDate.pack(fill="x")
-EntryDeleteBefore = ttk.Entry(frame2)
-EntryDeleteBefore.pack(fill="x")
+# Второй слой нотбука ДИСКИ
+secondLayer = ttk.Notebook(fold1)
+secondLayer.pack(fill="both")
+                                #Вкладка диска
+tr12ext = ttk.Label(fold1, text=r"________________________________________________________________________________________________")
+tr12ext.pack(fill="x")
+locDiskAdd = ttk.Button(fold1, text="Нажмите чтобы выбрать папку куда пойдёт бэкап", command=DiskWorks)
+locDiskAdd.pack(fill="x", padx=15, pady=5)
 
+locDiskAutom = ttk.Label(fold1, foreground="gray", font=("Arial", 10))
+locDiskAutom.pack(fill="x", padx=15, pady=5)
+readresult = ""
+with open("saveToDisk.txt", encoding="utf8") as f:
+    for line in f:
+        readresult = line.strip()
+if readresult != "":
+    locDiskAutom["text"] = readresult
+    locDiskAutom["foreground"] = "black"
+else:
+    locDiskAutom["text"] = "Автоматическое сохранение пути не найдено, добавьте самостоятельно"
+    locDiskAutom["foreground"] = "red"
+tr1ext = ttk.Label(fold1, text=r"________________________________________________________________________________________________")
+tr1ext.pack(fill="x")
+#Что копировать
 
+whatToCopyList = Listbox(fold1, width=100)
+whatToCopyList.pack(anchor="nw", padx=10)
+def addToCopyList(rrr):
+    whatToCopyList.insert(END, rrr)
+    with open('whatToCopy.txt', 'a') as f:
+        f.write(rrr + "\n")
+
+def deleteFromCopyList():
+    whatToCopyList.delete(0, END)
+    with open('whatToCopy.txt', 'w') as f:
+        f.write("")
+with open('whatToCopy.txt', encoding="utf8") as f:
+    for line in f:
+        whatToCopyList.insert(END, line.split())   
+whatToCopyText = ttk.Label(fold1, text="Впишите нужные для копирования папки",font=("Arial", 10))
+whatToCopyText.pack(fill="x", padx=15, pady=5)
+whatToCopyEntry = ttk.Entry(fold1, width=100)
+whatToCopyEntry.pack(anchor="nw", padx=10)
+
+whatToCopySend = ttk.Button(fold1,text="Добавить путь", command=lambda:addToCopyList(whatToCopyEntry.get()))
+whatToCopySend.pack(anchor="nw", padx=15)
+clearCopyButt = ttk.Button(fold1,text="Отчистить сохранённые пути копирования", command=deleteFromCopyList)
+clearCopyButt.pack(anchor="nw", padx=15)
+#Исключения
+trext = ttk.Label(fold1, text="________________________________________________________________________________________________")
+trext.pack(fill="x")
+whatToExceptList = Listbox(fold1, width=100)
+whatToExceptList.pack(anchor="nw", padx=10)
+def addToExceptionListCopy(rrr):
+    whatToExceptList.insert(END, rrr)
+    with open('exceptionsBACKUP.txt', 'a') as f:
+        f.write(rrr + "\n")
+
+def deleteFromExceptionListCopy():
+    whatToExceptList.delete(0, END)
+    with open('exceptionsBACKUP.txt', 'w') as f:
+        f.write("")
+
+with open('exceptionsBACKUP.txt', encoding="utf8") as f:
+    for line in f:
+        whatToExceptList.insert(END, line.split())   
+whatToExceptText = ttk.Label(fold1, text="Впишите исключения",font=("Arial", 10))
+whatToExceptText.pack(fill="x", padx=15, pady=5)
+whatToExceptEntry = ttk.Entry(fold1, width=100)
+whatToExceptEntry.pack(anchor="nw", padx=10)         
+whatToExceptSend = ttk.Button(fold1,text="Добавить путь", command=lambda:addToExceptionListCopy(whatToExceptEntry.get()))
+whatToExceptSend.pack(anchor="nw", padx=15)
+
+clearExceptionsButt = ttk.Button(fold1,text="Отчистить исключения", command=deleteFromExceptionListCopy)
+clearExceptionsButt.pack(anchor="nw", padx=15)
+
+#Результат
+def copyStart():
+    ind = 0
+    while ind != whatToCopyList.size():
+        ind = ind + 1
+        print(whatToCopyList.get(ind))
+
+startCopy = ttk.Button(fold1,text="Начать копирование", command=copyStart)
+startCopy.pack(anchor="center", padx=15, pady=15)
+
+startCopyres = ttk.Label(fold1, text=0, foreground="gray")
+startCopyres.pack(anchor="center", padx=15)
 root.mainloop()
